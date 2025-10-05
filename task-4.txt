@@ -181,3 +181,4 @@ FONKSIYON DistanceAPI(idA, idB, metric, Graph = NULL)
     locB ← LookupLocationById(idB)
     RETURN ComputeDistance(locA, locB, metric, Graph)
 END
+//Herhangi iki konumun birbirine uzaklığı ifade eden projenin algoritması için adım adım algoritma geliştirmek istiyorum. Koşullu durumları ve tekrar eden işlemleri de içeren detaylı bir pseudocode yazmama yardım eder misin?”
