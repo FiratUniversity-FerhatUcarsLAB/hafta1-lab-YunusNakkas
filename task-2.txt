@@ -1,4 +1,34 @@
-Öğrenci No:
-AD-SOYAD:
+Öğrenci No:250542021
+AD-SOYAD:Yunus Emre Nakkaş
 
 Lütfen seçtiğiniz algoritmaya ait çözümü ve diğer isterleri aşağıya ekleyiniz:
+
+1. BAŞLA
+
+2. REHBER ← isim ve numara çiftlerinden oluşan liste
+     ÖRNEK: 
+     REHBER ← [
+         ("Ayşe", "0532 000 00 00"),
+         ("Zeynep", "0532 111 11 11"),
+         ("Mehmet", "0532 222 22 22")
+     ]
+
+3. N ← REHBER'deki kişi sayısı
+
+4. i ← 0
+5. TEKRAR i < N - 1 OLDUĞU SÜRECE
+     a. j ← 0
+     b. TEKRAR j < N - i - 1 OLDUĞU SÜRECE
+          i.   EĞER REHBER[j].isim > REHBER[j + 1].isim İSE
+               - GEÇİCİ ← REHBER[j]
+               - REHBER[j] ← REHBER[j + 1]
+               - REHBER[j + 1] ← GEÇİCİ
+          ii.  j ← j + 1
+     c. i ← i + 1
+
+6. REHBERİ yazdır
+
+7. BİTİR
+
+//Telefon rehberini alfabetik düzenleme algoritması için adım adım algoritma geliştirmek istiyorum. Koşullu durumları ve tekrar eden işlemleri de içeren detaylı bir pseudocode yazmama yardım eder misin?”
+
