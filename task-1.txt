@@ -1,4 +1,249 @@
-Öğrenci No:
-AD-SOYAD:
+Öğrenci No:250542021
+AD-SOYAD:Yunus Emre Nakkaş
 
 Lütfen seçtiğiniz algoritmaya ait çözümü ve diğer isterleri aşağıya ekleyiniz:
+
+BAŞLA OmletYapmaAlgoritması
+
+    // Değişken Tanımlamaları
+    yumurtaSayısı ← 0
+    süt ← 0
+    tuz ← false
+    biber ← false
+    malzemeler ← boş liste
+    tavaDurumu ← "soğuk"
+    omletDurumu ← "hazır değil"
+    ısı ← 0
+    
+    // Adım 1: Malzeme Hazırlığı
+    YAZDIR "Omlet yapımına başlıyoruz!"
+    
+    YAZDIR "Kaç yumurta kullanmak istiyorsunuz? (2-4 arası önerilir)"
+    OKU yumurtaSayısı
+    
+    EĞER yumurtaSayısı < 2 VEYA yumurtaSayısı > 6 İSE
+        YAZDIR "UYARI: Optimal omlet için 2-4 yumurta önerilir!"
+    EĞER_SON
+    
+    // Adım 2: Yumurtaları Kırma ve Kontrol
+    kırılanYumurta ← 0
+    
+    TEKRARLA (i = 1'den yumurtaSayısı'na kadar)
+        YAZDIR "Yumurta ", i, " kırılıyor..."
+        
+        yumurtaKalitesi ← YumurtaKontrolEt()
+        
+        EĞER yumurtaKalitesi = "bozuk" İSE
+            YAZDIR "HATA: Yumurta bozuk! Atılıyor..."
+            yumurtaSayısı ← yumurtaSayısı - 1
+        DEĞİLSE
+            YAZDIR "Yumurta ", i, " kaseye eklendi."
+            kırılanYumurta ← kırılanYumurta + 1
+        EĞER_SON
+    TEKRAR_SON
+    
+    EĞER kırılanYumurta = 0 İSE
+        YAZDIR "HATA: Hiç kullanılabilir yumurta yok!"
+        ÇIK
+    EĞER_SON
+    
+    // Adım 3: Süt ve Baharat Ekleme
+    YAZDIR "Süt eklemek istiyor musunuz? (E/H)"
+    OKU cevap
+    
+    EĞER cevap = "E" İSE
+        süt ← kırılanYumurta * 15  // Her yumurta için 15ml süt
+        YAZDIR süt, " ml süt ekleniyor..."
+    EĞER_SON
+    
+    YAZDIR "Tuz eklemek istiyor musunuz? (E/H)"
+    OKU cevap
+    EĞER cevap = "E" İSE
+        tuz ← true
+        YAZDIR "Bir tutam tuz ekleniyor..."
+    EĞER_SON
+    
+    YAZDIR "Karabiber eklemek istiyor musunuz? (E/H)"
+    OKU cevap
+    EĞER cevap = "E" İSE
+        biber ← true
+        YAZDIR "Karabiber ekleniyor..."
+    EĞER_SON
+    
+    // Adım 4: Ek Malzeme Seçimi
+    YAZDIR "Ek malzeme eklemek istiyor musunuz? (E/H)"
+    OKU cevap
+    
+    EĞER cevap = "E" İSE
+        malzemeEklemeDevam ← true
+        
+        SÜRE_KI malzemeEklemeDevam = true
+            YAZDIR "Malzeme seçin (1:Peynir, 2:Mantar, 3:Domates, 4:Soğan, 0:Bitir)"
+            OKU seçim
+            
+            DURUM seçim
+                1: malzemeler.ekle("Peynir")
+                   YAZDIR "Peynir eklendi."
+                2: malzemeler.ekle("Mantar")
+                   YAZDIR "Mantar eklendi."
+                3: malzemeler.ekle("Domates")
+                   YAZDIR "Domates eklendi."
+                4: malzemeler.ekle("Soğan")
+                   YAZDIR "Soğan eklendi."
+                0: malzemeEklemeDevam ← false
+                   YAZDIR "Malzeme ekleme tamamlandı."
+                VARSAYILAN: YAZDIR "Geçersiz seçim!"
+            DURUM_SON
+        SÜRE_SON
+    EĞER_SON
+    
+    // Adım 5: Karışımı Çırpma
+    YAZDIR "Karışım çırpılıyor..."
+    çırpmaSayısı ← 0
+    karışımDurumu ← "homojen değil"
+    
+    SÜRE_KI karışımDurumu ≠ "homojen" VE çırpmaSayısı < 50
+        Çırp()
+        çırpmaSayısı ← çırpmaSayısı + 1
+        
+        EĞER çırpmaSayısı ≥ 30 İSE
+            karışımDurumu ← "homojen"
+        EĞER_SON
+    SÜRE_SON
+    
+    YAZDIR "Karışım ", çırpmaSayısı, " kez çırpıldı ve homojen hale geldi."
+    
+    // Adım 6: Tava Hazırlığı
+    YAZDIR "Tava ocağa yerleştiriliyor..."
+    tavaDurumu ← "ocakta"
+    
+    YAZDIR "Tereyağı ekleniyor..."
+    BEKLE 2  // 2 saniye bekle
+    
+    // Adım 7: Tavayı Isıtma
+    YAZDIR "Tava ısıtılıyor..."
+    ısı ← 0
+    
+    TEKRARLA (ısı = 0'dan 7'ye kadar, artış: 1)
+        YAZDIR "Isı seviyesi: ", ısı
+        BEKLE 3
+        
+        EĞER ısı = 5 İSE
+            YAZDIR "Optimal ısı seviyesine ulaşıldı!"
+            ÇIK_DÖNGÜ
+        EĞER_SON
+    TEKRAR_SON
+    
+    // Adım 8: Karışımı Tavaya Dökme
+    EĞER ısı < 4 İSE
+        YAZDIR "UYARI: Tava yeterince ısınmadı!"
+    EĞER_SON
+    
+    YAZDIR "Karışım tavaya dökülüyor..."
+    omletDurumu ← "pişiyor"
+    
+    // Adım 9: Pişirme İşlemi
+    pişmeSüresi ← 0
+    altKısımPişti ← false
+    üstKısımPişti ← false
+    
+    SÜRE_KI omletDurumu = "pişiyor"
+        pişmeSüresi ← pişmeSüresi + 5  // 5 saniye artır
+        YAZDIR "Pişme süresi: ", pişmeSüresi, " saniye"
+        BEKLE 5
+        
+        // Alt kısım kontrolü
+        EĞER pişmeSüresi ≥ 60 VE altKısımPişti = false İSE
+            YAZDIR "Alt kısım pişti, kontrol ediliyor..."
+            altDurum ← AltKısımKontrolEt()
+            
+            EĞER altDurum = "pişti" İSE
+                altKısımPişti ← true
+                YAZDIR "Malzemeler ekleniyor..."
+                
+                HER malzeme İÇİN malzemeler
+                    YAZDIR malzeme, " omlete ekleniyor..."
+                HER_SON
+                
+                YAZDIR "Omlet çevriliyor..."
+                OmletÇevir()
+            EĞER_SON
+        EĞER_SON
+        
+        // Üst kısım kontrolü
+        EĞER pişmeSüresi ≥ 120 VE altKısımPişti = true İSE
+            YAZDIR "Üst kısım kontrol ediliyor..."
+            üstDurum ← ÜstKısımKontrolEt()
+            
+            EĞER üstDurum = "pişti" İSE
+                üstKısımPişti ← true
+                omletDurumu ← "hazır"
+            EĞER_SON
+        EĞER_SON
+        
+        // Aşırı pişme kontrolü
+        EĞER pişmeSüresi > 180 İSE
+            YAZDIR "UYARI: Omlet çok pişebilir!"
+            omletDurumu ← "hazır"
+        EĞER_SON
+    SÜRE_SON
+    
+    // Adım 10: Servis
+    YAZDIR "Omlet tabağa alınıyor..."
+    YAZDIR "Omlet hazır! Afiyet olsun!"
+    
+    // İstatistikler
+    YAZDIR "--- Omlet İstatistikleri ---"
+    YAZDIR "Kullanılan yumurta: ", kırılanYumurta
+    YAZDIR "Toplam pişme süresi: ", pişmeSüresi, " saniye"
+    YAZDIR "Eklenen malzeme sayısı: ", malzemeler.uzunluk
+    
+    EĞER tuz VE biber İSE
+        YAZDIR "Baharat: Tam"
+    DEĞİLSE_EĞER tuz VEYA biber İSE
+        YAZDIR "Baharat: Kısmi"
+    DEĞİLSE
+        YAZDIR "Baharat: Yok"
+    EĞER_SON
+    
+    // Alt Fonksiyonlar
+    FONKSİYON YumurtaKontrolEt()
+        rastgele ← RastgeleSayı(1, 10)
+        EĞER rastgele > 8 İSE
+            DÖNDÜR "bozuk"
+        DEĞİLSE
+            DÖNDÜR "iyi"
+        EĞER_SON
+    FONKSİYON_SON
+    
+    FONKSİYON Çırp()
+        // Çırpma işlemi simülasyonu
+        BEKLE 0.1
+    FONKSİYON_SON
+    
+    FONKSİYON AltKısımKontrolEt()
+        YAZDIR "Alt kısım kontrol ediliyor..."
+        DÖNDÜR "pişti"
+    FONKSİYON_SON
+    
+    FONKSİYON ÜstKısımKontrolEt()
+        YAZDIR "Üst kısım kontrol ediliyor..."
+        DÖNDÜR "pişti"
+    FONKSİYON_SON
+    
+    FONKSİYON OmletÇevir()
+        YAZDIR "Omlet havaya fırlatılıyor ve çevriliyor..."
+        başarı ← RastgeleSayı(1, 10)
+        EĞER başarı > 3 İSE
+            YAZDIR "Başarılı! Omlet mükemmel şekilde çevrildi."
+        DEĞİLSE
+            YAZDIR "Omlet biraz dağıldı ama sorun değil!"
+        EĞER_SON
+    FONKSİYON_SON
+
+SON OmletYapmaAlgoritması
+
+
+//LLM ile Sohbet Geçmişi
+Mükemmel omlet yapma algoritması için adım adım algoritma geli ̧stirmek istiyorum. Koşullu durumları ve tekrar eden işlemleri de içeren detaylı bir pseudocode yazmama yardım eder misin?”
+
