@@ -1,4 +1,183 @@
-Öğrenci No:
-AD-SOYAD:
+Öğrenci No:250542021
+AD-SOYAD:Yunus Emre Nakkaş
 
 Lütfen seçtiğiniz algoritmaya ait çözümü ve diğer isterleri aşağıya ekleyiniz:
+
+Önce yardımcı fonksiyonları yazalım
+
+FONKSIYON ValidateLocation(loc)
+    IF loc == NULL OR loc.coords == NULL THEN
+        RAISE "InvalidLocation"
+    IF loc.type NOT IN {"latlon","xy"} THEN
+        RAISE "UnknownLocationType"
+    RETURN TRUE
+END
+
+FONKSIYON NormalizeCoord(loc)
+    IF loc.type == "latlon" THEN
+        lat_rad ← toRadians(loc.coords.lat)
+        lon_rad ← toRadians(loc.coords.lon)
+        RETURN (lat_rad, lon_rad)
+    ELSE
+        RETURN loc.coords // (x,y)
+END
+
+FONKSIYON CacheKey(idA, idB, metric)
+    // canonical ordering so key(a,b)==key(b,a)
+    IF idA <= idB THEN RETURN (idA, idB, metric)
+    ELSE RETURN (idB, idA, metric)
+END
+
+FONKSIYON GetFromCache(idA, idB, metric)
+    key ← CacheKey(idA, idB, metric)
+    IF key IN DistanceCache THEN
+        entry ← DistanceCache[key]
+        // Optional TTL check:
+        IF CURRENT_TIME - entry.timestamp > CACHE_TTL THEN
+            REMOVE DistanceCache[key]
+            RETURN NULL
+        END IF
+        RETURN entry.distance
+    END IF
+    RETURN NULL
+END
+
+FONKSIYON PutToCache(idA, idB, metric, distance)
+    key ← CacheKey(idA, idB, metric)
+    DistanceCache[key] ← { distance: distance, timestamp: CURRENT_TIME }
+    // Optional: if cache too big, evict LRU (not shown)
+END
+
+// ---------- Temel mesafe hesaplama ----------
+FONKSIYON ComputeDistance(locA, locB, metric, Graph = NULL)
+    // Input validation
+    ValidateLocation(locA)
+    ValidateLocation(locB)
+    IF locA.id == locB.id THEN RETURN 0
+
+    // Cache kontrolü
+    cached ← GetFromCache(locA.id, locB.id, metric)
+    IF cached != NULL THEN RETURN cached
+
+    // Seçime göre hesaplama
+    IF metric == "euclidean" THEN
+        (x1, y1) ← NormalizeCoord(locA)
+        (x2, y2) ← NormalizeCoord(locB)
+        dx ← x1 - x2
+        dy ← y1 - y2
+        d ← sqrt(dx*dx + dy*dy)
+    ELSE IF metric == "manhattan" THEN
+        (x1, y1) ← NormalizeCoord(locA)
+        (x2, y2) ← NormalizeCoord(locB)
+        d ← abs(x1-x2) + abs(y1-y2)
+    ELSE IF metric == "haversine" THEN
+        // Haversine for lat/lon in kilometers (R = 6371)
+        (lat1, lon1) ← NormalizeCoord(locA)
+        (lat2, lon2) ← NormalizeCoord(locB)
+        dlat ← lat2 - lat1
+        dlon ← lon2 - lon1
+        a ← sin(dlat/2)^2 + cos(lat1) * cos(lat2) * sin(dlon/2)^2
+        c ← 2 * atan2(sqrt(a), sqrt(1-a))
+        R ← 6371.0
+        d ← R * c
+    ELSE IF metric == "network" THEN
+        IF Graph == NULL THEN RAISE "GraphRequiredForNetworkMetric"
+        // Use shortest path on graph (Dijkstra)
+        (d, path) ← DijkstraShortestPath(Graph, locA.id, locB.id)
+    ELSE
+        RAISE "UnknownMetric"
+    END IF
+
+    PutToCache(locA.id, locB.id, metric, d)
+    RETURN d
+END
+
+// ---------- Dijkstra (ağ tabanlı short-path) ----------
+FONKSIYON DijkstraShortestPath(Graph, srcId, dstId)
+    // Priority queue of (distance, nodeId)
+    dist ← map default ∞
+    prev ← map default NULL
+    dist[srcId] ← 0
+    pq ← new MinHeap()
+    pq.push((0, srcId))
+
+    WHILE pq NOT EMPTY DO
+        (curDist, u) ← pq.pop()
+        // Early exit if popped dist > stored dist (stale entry)
+        IF curDist > dist[u] THEN CONTINUE
+        IF u == dstId THEN BREAK // found shortest to dst
+
+        FOR EACH (v, weight) IN Graph[u] DO
+            alt ← dist[u] + weight
+            IF alt < dist[v] THEN
+                dist[v] ← alt
+                prev[v] ← u
+                pq.push((alt, v))
+            END IF
+        END FOR
+    END WHILE
+
+    IF dist[dstId] == ∞ THEN
+        RETURN (∞, NULL) // unreachable
+    END IF
+
+    // optionally reconstruct path
+    path ← []
+    node ← dstId
+    WHILE node != NULL DO
+        path.prepend(node)
+        node ← prev[node]
+    END WHILE
+
+    RETURN (dist[dstId], path)
+END
+
+// ---------- Distance matrix inşa etme (symm) ----------
+FONKSIYON BuildDistanceMatrix(locations[], metric, Graph = NULL)
+    n ← LENGTH(locations)
+    matrix ← n x n initialized with 0
+    FOR i FROM 0 TO n-1 DO
+        FOR j FROM i+1 TO n-1 DO
+            d ← ComputeDistance(locations[i], locations[j], metric, Graph)
+            matrix[i][j] ← d
+            matrix[j][i] ← d
+        END FOR
+    END FOR
+    RETURN matrix
+END
+
+// ---------- En yakın k komşuyu bulma (naif ve KD-Tree fallback) ----------
+FONKSIYON NearestNeighbors_Naive(queryLoc, locations[], k, metric, Graph = NULL)
+    heap ← new MaxHeap of size k // store (distance, id)
+    FOR EACH loc IN locations DO
+        IF loc.id == queryLoc.id THEN CONTINUE
+        d ← ComputeDistance(queryLoc, loc, metric, Graph)
+        IF heap.size < k THEN
+            heap.push((d, loc.id))
+        ELSE IF d < heap.peekMax().distance THEN
+            heap.pop()
+            heap.push((d, loc.id))
+        END IF
+    END FOR
+    result ← heap.toSortedListAscending()
+    RETURN result
+END
+
+// KD-Tree opsiyonel (düzlem için):
+FONKSIYON BuildKDTree(points, depth)
+    IF points EMPTY THEN RETURN NULL
+    axis ← depth % 2 // 0 -> x, 1 -> y
+    sort points by axis
+    median ← len(points)//2
+    node.point ← points[median]
+    node.left ← BuildKDTree(points[0:median], depth+1)
+    node.right ← BuildKDTree(points[median+1:], depth+1)
+    RETURN node
+END
+
+// Basit API fonksiyonu kullanıcı için:
+FONKSIYON DistanceAPI(idA, idB, metric, Graph = NULL)
+    locA ← LookupLocationById(idA)
+    locB ← LookupLocationById(idB)
+    RETURN ComputeDistance(locA, locB, metric, Graph)
+END
