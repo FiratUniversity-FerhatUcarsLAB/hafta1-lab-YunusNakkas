@@ -1,4 +1,139 @@
-Öğrenci No:
-AD-SOYAD:
+Öğrenci No:250542021
+AD-SOYAD:Yunus Emre Nakkaş
 
 Lütfen seçtiğiniz algoritmaya ait çözümü ve diğer isterleri aşağıya ekleyiniz:
+
+ALGORITHM SudokuSolver
+INPUT: 9x9 Sudoku tahtası (grid,[object Object],[object Object],)
+       Boş hücreler 0 ile gösterilir
+OUTPUT: Çözülmüş Sudoku tahtası veya "Çözüm yok" mesajı
+
+BEGIN
+    IF SolveSudoku(grid, 0, 0) THEN
+        RETURN grid  // Çözüm bulundu
+    ELSE
+        RETURN "Çözüm bulunamadı"
+    END IF
+END
+
+// ============================================
+// ANA ÇÖZÜM FONKSİYONU (Backtracking)
+// ============================================
+FUNCTION SolveSudoku(grid, row, col) : Boolean
+BEGIN
+    // Adım 1: Taban durum - Tüm satırlar tamamlandı mı?
+    IF row == 9 THEN
+        RETURN TRUE  // Sudoku çözüldü
+    END IF
+    
+    // Adım 2: Bir sonraki hücreyi belirle
+    nextRow = row
+    nextCol = col + 1
+    
+    IF nextCol == 9 THEN  // Satır sonu
+        nextRow = row + 1
+        nextCol = 0
+    END IF
+    
+    // Adım 3: Eğer hücre dolu ise, bir sonraki hücreye geç
+    IF grid[row][col] != 0 THEN
+        RETURN SolveSudoku(grid, nextRow, nextCol)
+    END IF
+    
+    // Adım 4: Boş hücre için 1'den 9'a kadar dene
+    FOR num = 1 TO 9 DO
+        // Adım 4.1: Sayının yerleştirilebilir olup olmadığını kontrol et
+        IF IsValid(grid, row, col, num) THEN
+            // Adım 4.2: Sayıyı yerleştir (deneme)
+            grid[row][col] = num
+            
+            // Adım 4.3: Rekursif olarak devam et
+            IF SolveSudoku(grid, nextRow, nextCol) THEN
+                RETURN TRUE  // Çözüm bulundu
+            END IF
+            
+            // Adım 4.4: Backtrack - Sayı çalışmadı, geri al
+            grid[row][col] = 0
+        END IF
+    END FOR
+    
+    // Adım 5: Hiçbir sayı çalışmadı
+    RETURN FALSE
+END FUNCTION
+
+// ============================================
+// GEÇERLİLİK KONTROLÜ
+// ============================================
+FUNCTION IsValid(grid, row, col, num) : Boolean
+BEGIN
+    // Kontrol 1: Satır kontrolü
+    FOR i = 0 TO 8 DO
+        IF grid[row][i] == num THEN
+            RETURN FALSE
+        END IF
+    END FOR
+    
+    // Kontrol 2: Sütun kontrolü
+    FOR i = 0 TO 8 DO
+        IF grid[i][col] == num THEN
+            RETURN FALSE
+        END IF
+    END FOR
+    
+    // Kontrol 3: 3x3 kutu kontrolü
+    boxStartRow = (row / 3) * 3
+    boxStartCol = (col / 3) * 3
+    
+    FOR i = 0 TO 2 DO
+        FOR j = 0 TO 2 DO
+            IF grid[boxStartRow + i][boxStartCol + j] == num THEN
+                RETURN FALSE
+            END IF
+        END FOR
+    END FOR
+    
+    // Tüm kontroller geçildi
+    RETURN TRUE
+END FUNCTION
+
+// ============================================
+// YARDIMCI FONKSİYONLAR
+// ============================================
+
+// Sudoku tahtasını yazdır
+FUNCTION PrintSudoku(grid)
+BEGIN
+    FOR i = 0 TO 8 DO
+        IF i % 3 == 0 AND i != 0 THEN
+            PRINT "------+-------+------"
+        END IF
+        
+        FOR j = 0 TO 8 DO
+            IF j % 3 == 0 AND j != 0 THEN
+                PRINT "| "
+            END IF
+            
+            IF grid[i][j] == 0 THEN
+                PRINT ". "
+            ELSE
+                PRINT grid[i][j] + " "
+            END IF
+        END FOR
+        PRINT newline
+    END FOR
+END FUNCTION
+
+// Boş hücre bul (optimizasyon için)
+FUNCTION FindEmptyCell(grid) : (row, col, found)
+BEGIN
+    FOR i = 0 TO 8 DO
+        FOR j = 0 TO 8 DO
+            IF grid[i][j] == 0 THEN
+                RETURN (i, j, TRUE)
+            END IF
+        END FOR
+    END FOR
+    RETURN (-1, -1, FALSE)  // Boş hücre yok
+END FUNCTION
+
+//Sudoku çözme yaklaşımını algoritması için adım adım algoritma geliştirmek istiyorum. Koşullu durumları ve tekrar eden işlemleri de içeren detaylı bir pseudocode yazmama yardım eder misin?”
