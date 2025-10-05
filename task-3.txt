@@ -1,4 +1,86 @@
-Öğrenci No:
-AD-SOYAD:
+Öğrenci No:250542021
+AD-SOYAD:Yunus Emre Nakkaş
 
 Lütfen seçtiğiniz algoritmaya ait çözümü ve diğer isterleri aşağıya ekleyiniz:
+
+GIRDILER:
+    durak_listesi = {D1, D2, ..., Dn}
+    uzaklik_matrisi[n][n]   // her durak arası mesafeler
+    baslangic_duragi = D1
+
+CIKTILAR:
+    en_iyi_rota
+    minimum_mesafe
+
+ADIM 1: Başlat
+    mevcut_durak ← baslangic_duragi
+    ziyaret_edilen ← {baslangic_duragi}
+    rota ← [baslangic_duragi]
+    toplam_mesafe ← 0
+
+ADIM 2: Greedy (En Yakın Komşu Yaklaşımı)
+    WHILE ziyaret_edilen durak sayısı < n DO
+        en_yakin_mesafe ← ∞
+        en_yakin_durak ← NULL
+
+        FOR her durak D in durak_listesi DO
+            IF D ziyaret_edilen içinde DEĞİLSE THEN
+                mesafe ← uzaklik_matrisi[mevcut_durak][D]
+                IF mesafe < en_yakin_mesafe THEN
+                    en_yakin_mesafe ← mesafe
+                    en_yakin_durak ← D
+                END IF
+            END IF
+        END FOR
+
+        // En yakın durağa git
+        rota ← rota + [en_yakin_durak]
+        ziyaret_edilen ← ziyaret_edilen + {en_yakin_durak}
+        toplam_mesafe ← toplam_mesafe + en_yakin_mesafe
+        mevcut_durak ← en_yakin_durak
+    END WHILE
+
+ADIM 3: Başlangıca geri dön
+    toplam_mesafe ← toplam_mesafe + uzaklik_matrisi[mevcut_durak][baslangic_duragi]
+    rota ← rota + [baslangic_duragi]
+
+ADIM 4: Local Optimization (2-Opt İyileştirmesi)
+    degisiklik_var ← TRUE
+    WHILE degisiklik_var DO
+        degisiklik_var ← FALSE
+        FOR i ← 2 TO (n - 2) DO
+            FOR j ← i + 1 TO (n - 1) DO
+                yeni_rota ← 2OptSwap(rota, i, j)
+                yeni_mesafe ← RotaMesafesi(yeni_rota, uzaklik_matrisi)
+                IF yeni_mesafe < toplam_mesafe THEN
+                    rota ← yeni_rota
+                    toplam_mesafe ← yeni_mesafe
+                    degisiklik_var ← TRUE
+                END IF
+            END FOR
+        END FOR
+    END WHILE
+
+ADIM 5: Sonuçları döndür
+    en_iyi_rota ← rota
+    minimum_mesafe ← toplam_mesafe
+    CIKTI(en_iyi_rota, minimum_mesafe)
+
+SON ALGORITMA
+
+
+FONKSIYON 2OptSwap(rota, i, j)
+    yeni_rota ← rota[1:i-1] + Ters(rota[i:j]) + rota[j+1:]
+    RETURN yeni_rota
+END FONKSIYON
+
+FONKSIYON RotaMesafesi(rota, uzaklik_matrisi)
+    toplam ← 0
+    FOR k ← 1 TO rota_uzunlugu - 1 DO
+        toplam ← toplam + uzaklik_matrisi[rota[k]][rota[k+1]]
+    END FOR
+    RETURN toplam
+END FONKSIYON
+
+
+//Otobüs rotası optimizasyonu algoritması için adım adım algoritma geliştirmek istiyorum. Koşullu durumları ve tekrar eden işlemleri de içeren detaylı bir pseudocode yazmama yardım eder misin?”
